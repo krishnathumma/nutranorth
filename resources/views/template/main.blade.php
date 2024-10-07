@@ -271,7 +271,7 @@
                         <li class="nav-item">
                             <a href="/timesheet" class="nav-link">
                                 <i class="nav-icon fa-solid fa-timeline"></i>
-                                <p>Timesheet 123</p>
+                                <p>Timesheet 456</p>
                             </a>
                         </li>
                         <li class="nav-item">
