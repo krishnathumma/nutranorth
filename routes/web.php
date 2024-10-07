@@ -36,6 +36,10 @@ Route::get('/register', [AuthController::class, 'register']);
 Route::post('/register', [AuthController::class, 'process']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
+
+Route::get('/user/change-password', [UserController::class, 'changePassword']);
+Route::post('/change-password', [UserController::class, 'changePasswordSave'])->name('postChangePassword');
+
 // route dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
 Route::get('/', [DashboardController::class, 'index'])->middleware('auth');

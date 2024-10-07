@@ -24,7 +24,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $this->taskmail(2, 'add');
+        //$this->taskmail(2, 'add');
         
         $task = DB::table('tasks')
             ->leftjoin('users', 'tasks.assigned_to', '=', 'users.id_user')

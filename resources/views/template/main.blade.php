@@ -268,7 +268,7 @@
                                 <p>Customer Enquiry</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a href="/timesheet" class="nav-link">
                                 <i class="nav-icon fa-solid fa-timeline"></i>
                                 <p>Timesheet</p>
@@ -278,6 +278,12 @@
                             <a href="/machine" class="nav-link">
                                 <i class="nav-icon fa-solid fa-industry"></i>
                                 <p>Machine</p>
+                            </a>
+                        </li> -->
+                        <li class="nav-item">
+                            <a href="/user/change-password" class="nav-link">
+                                <i class="nav-icon fa-solid fa-eye"></i>
+                                <p>Change Password</p>
                             </a>
                         </li>
                         <li class="nav-item">

@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\UserLocationRelationship;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 use RealRashid\SweetAlert\Facades\Alert;
 use Exception;
@@ -133,5 +134,44 @@ class UserController extends Controller
             Alert::warning('Error', 'Cant deleted, User already used !');
             return redirect('/user');
         }
+    }
+
+    public function changePassword(Request $request)
+    {
+        // return view('user.user-edit', [
+        //     'user' => $user,
+        //     'locations' => $locations, 
+        //     'roles' => $roles
+        // ]);
+
+        return view('user.change-password');
+    }
+
+
+    public function changePasswordSave(Request $request)
+    {   
+
+       
+        $this->validate($request, [
+            'current_password' => 'required|string',
+            'new_password' => 'required|confirmed|min:8|string'
+        ]);
+        $auth = auth()->user();
+
+	    // The passwords matches
+        if (!Hash::check($request->get('current_password'), $auth->password)) 
+        {
+            return back()->with('error', "Current Password is Invalid");
+        }
+
+        // Current password and new password same
+        if (strcmp($request->get('current_password'), $request->new_password) == 0) 
+        {
+            return redirect()->back()->with("error", "New Password cannot be same as your current password.");
+        }
+        $user =  User::findOrFail($auth->id_user);
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        return back()->with('success', "Password Changed Successfully");
     }
 }
