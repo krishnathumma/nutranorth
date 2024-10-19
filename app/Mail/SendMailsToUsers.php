@@ -17,7 +17,7 @@ class SendMailsToUsers extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(private $name, public $html, public $subject, public $attachedFile ='')
+    public function __construct(private $name, public $subject, public $html,  public $attachedFile ='')
     {
         //
     }
@@ -51,7 +51,7 @@ class SendMailsToUsers extends Mailable
     public function attachments(): array
     {
         return [
-            Attachment::fromPath($this->attachedFile),
+            Attachment::fromPath($this->attachedFile)->withMime('application/pdf'),
         ];
     }
 }

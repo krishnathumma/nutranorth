@@ -23,11 +23,14 @@ class NpnController extends Controller
     public function index()
     {
         $npns = DB::table('npns')
-            ->leftjoin('locations', 'npns.location_id', '=', 'locations.id')
-            ->leftjoin('files', 'npns.id', '=', 'files.type_id')
-            ->select('npns.*','locations.location_name','files.id as files_id')
-            ->whereRaw('npns.deleted_at = "" OR npns.deleted_at IS NULL')
-            ->get();
+                ->leftJoin('locations', 'npns.location_id', '=', 'locations.id')
+                ->leftJoin('files', function($join) {
+                    $join->on('npns.id', '=', 'files.type_id')
+                        ->where('files.type', '=', 'Npn');
+                })
+                ->select('npns.*', 'locations.location_name', 'files.id as files_id')
+                ->whereNull('npns.deleted_at')
+                ->get();
 
         $value = auth()->user();
         $role = Role::find($value->role_id);

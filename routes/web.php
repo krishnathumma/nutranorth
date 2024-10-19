@@ -89,6 +89,12 @@ Route::get('/download/{filename}', [FileController::class, 'download'])->name('f
 
 Route::resource('/file', FileController::class)->middleware('auth');
 
+Route::get('/file/create', [FileController::class, 'create'])->middleware('auth');
+
+Route::post('/upload', [FileController::class, 'upload'])->name('file.upload');
+
+Route::get('/file/execute/{file_id}', [FileController::class, 'execute'])->name('file.execute');
+
 Route::get('/testroute', function() {
     $filePath = public_path('favicon.ico');
     $name = "Developer";

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\File;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Mail\SendMailsToUsers;
 use Illuminate\Support\Facades\Mail;
+// use App\Mail\MailSender;
 use Exception;
 
 class TaskController extends Controller
@@ -24,7 +25,8 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //$this->taskmail(2, 'add');
+        // $this->taskmail(2, 'add');
+        // exit;
         
         $task = DB::table('tasks')
             ->leftjoin('users', 'tasks.assigned_to', '=', 'users.id_user')
@@ -73,7 +75,7 @@ class TaskController extends Controller
         $validated['updated_by'] = auth()->user()->role_id;
 
         //dd($request->file('filename')->getClientOriginalName());
-        $this->taskmail(2, 'add');
+        //$this->taskmail(2, 'add');
         $task = Task::create($validated);
         
         if($task){
@@ -196,9 +198,11 @@ class TaskController extends Controller
     {
 
         $task = DB::table('tasks')->where('id', $id)->first();
-        
+
+                
         $user = DB::table('users')->where('id_user', $task->assigned_to)->first();
 		$user_name = $user->name;
+
 
 		$task_assigned = DB::table('users')->where('id_user', $task->created_by)->first();
 		$task_assigned_name = $task_assigned->name;
@@ -290,44 +294,15 @@ class TaskController extends Controller
         $html = $htmlheader.$htmlbody.$htmlfooter;
         $files = DB::table('files')->where(['type_id'=> $task->id,'type'=>'Task'])->first();
         $filePath = '';
-        $user->email = "psyennam@gmail.com";
-        // if($files != null || $files != '')
-        // {
-        //     //dd('Files');
-        //     $filePath = public_path('app/public/'. $files->file_path);
-        //     Mail::to("psyennam@gmail.com")->send(new SendMailsToUsers($user->name, $html, $subject, $filePath));
-        // } else {
-        //     //dd('Empty');
-        //     Mail::to("psyennam@gmail.com")->send(new SendMailsToUsers($user->name, $html, $subject));
-        // }
+        $mail = $user->email = "nnnutra1330@gmail.com";
+        $name = $user->name;
 
+        if($files != null || $files != '')
+        {
+            $filePath = public_path() . '/storage/' . $files->file_path;
+        } 
         
-
-        // $flag = send($subject, $htmlbody, $emailId);
-	    
-	    // if($flag == 1){
-	    // 	$data = [
-	    //         'subject' => $subject,
-	    //         'status' => "Success",
-	    //         'to' => $emailId,
-	    //         'content' => $htmlbody,
-	    //         'error_log' => "",
-	    //         'created_by' => $this->session->userdata('userid'),
-	    //         'created_at' => date('Y-m-d H:i:s')
-	    //     ];
-	    // } else {
-	    //   	$data = [
-	    //         'subject' => $subject,
-	    //         'status' => "Failed",
-	    //         'to' => $emailId,
-	    //         'content' => $htmlbody,
-	    //         'error_log' => $flag,
-	    //         'created_by' => $this->session->userdata('userid'),
-	    //         'created_at' => date('Y-m-d H:i:s')
-	    //     ];
-	    // }
-	    // $this->db->insert('mail_logs', $data);
-
+        Mail::to("nnnutra1330@gmail.com")->send(new SendMailsToUsers($name, $html, $subject, $filePath));
 
     }
     

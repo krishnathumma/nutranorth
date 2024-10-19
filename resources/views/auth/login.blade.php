@@ -15,6 +15,8 @@
 
     <link rel="stylesheet" href="/assets/dist/css/adminlte.min.css">
 
+    <link rel="stylesheet" href="/assets/dist/css/adminlte.css">
+
 </head>
 
 <body class="hold-transition login-page">
@@ -23,12 +25,12 @@
 
     <div class="login-box">
 
-        <div class="card card-outline card-primary">
+        <div class="card card-outline">
             <div class="card-header text-center">
-                <a href="/" class="h1"><b>NutraNorth</b></a>
+                <a href="/" class="h1" ><b>NutraNorth</b></a>
             </div>
             <div class="card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
+                
                 <form class="needs-validation" novalidate action="/login" method="POST">
                     @csrf
                     <div class="input-group mb-3">
@@ -60,9 +62,7 @@
                         <div class="col-4">
                             <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                         </div>
-                        <p class="mb-0">
-                            <a href="/register" class="text-center">Register a new membership</a>
-                        </p>
+                       
                     </div>
                 </form>
             </div>

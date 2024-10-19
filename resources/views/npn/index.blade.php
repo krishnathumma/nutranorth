@@ -59,7 +59,14 @@
                                                 <td>{{ ucfirst($data->status) }}</td>
                                                 <td>{{ $data->number }}</td>
                                                 <td>{{ $data->location_name }}</td>
-                                                <td><a href="{{ URL::to( '/download/' . $data->files_id)  }}" >Download</a></td>
+                                                
+                                                
+                                                <?php if($data->files_id) {?>  
+                                                    <td><a href="{{ URL::to( '/download/' . $data->files_id)  }}" >Download</a></td>
+                                                <?php }  else { ?>    
+                                                    <td>-</td>
+                                                <?php } ?>
+                                                
                                                 @if($role->role == "Administor")
                                                 <td>
                                                     <form class="d-inline" action="/npn/{{ $data->id }}/edit"
