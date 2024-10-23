@@ -39,6 +39,7 @@
             <form class="needs-validation" novalidate action="/user" method="POST">
               @csrf
               <div class="card-body">
+
                 <div class="row">
                   <div class="col-lg-6">
                     <div class="form-group">
@@ -58,6 +59,31 @@
                       @enderror
                     </div>
                   </div>
+                </div>
+
+                <div class="row">
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="username">Username</label>
+                      <input type="text" name="username" class="form-control @error('username') is-invalid @enderror" id="username" placeholder="User Name" value="{{old('username')}}" required>
+                      @error('username')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="password">Password</label>
+                      <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Password" value="{{old('password')}}" required>
+                      @error('password')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+                  
                 </div>
 
                 <div class="row">
@@ -94,19 +120,51 @@
                     </div>
                   </div>
                 </div>
-
+                <?php 
+                  $department = [
+                    'qa' => 'QA',
+                    'purchase' => "Purchase",
+                    'costing' => 'Costing',
+                    'sales/marketing' => 'Sales/Marketing',
+                    'digital_design' => "Digital Design",
+                    'it' => "IT",
+                    'production' => "Production",
+                    'accounts' => "Accounts",
+                    'administration' => "Administration",
+                    'others' => "Others"
+                  ];
+                ?>
                 <div class="row">
+
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label for="password">Password</label>
-                      <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Password" value="{{old('password')}}" required>
-                      @error('password')
+                      <label for="location">Department</label>
+                      <select name="department" id="department_id" class="form-control" required>
+                          <option value="">Plase Select</option>
+                          @foreach ($department as $key => $value)
+                              <option value="{{ $key }}">
+                                  {{ $value  }}
+                              </option>
+                          @endforeach
+                      </select> 
+                      @error('department')
                       <span class="invalid-feedback text-danger">{{ $message }}</span>
                       @enderror
                     </div>
                   </div>
-                  
-                </div>
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="designation">Designation</label>
+                      <input type="text" name="designation" class="form-control @error('designation') is-invalid @enderror" id="designation" placeholder="Designation" value="{{old('designation')}}" required>
+                      @error('designation')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+
+              </div>  
+                
                 
               </div>
               <div class="card-footer text-right">

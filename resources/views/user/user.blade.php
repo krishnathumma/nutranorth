@@ -42,9 +42,12 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Name</th>
+                                            <th>User Name</th>
                                             <th>Email</th>
                                             <th>Role</th>
                                             <th>Location</th>
+                                            <th>Designation</th>
+                                            <th>Department</th>
                                             @if($role->role == "Administor")
                                             <th>Action</th>
                                             @endif
@@ -55,9 +58,12 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $data->name }}</td>
+                                                <td>{{ $data->username }}</td>
                                                 <td>{{ $data->email }}</td>
                                                 <td>{{ $data->role }}</td>
                                                 <td>{{ $data->location_name }}</td>
+                                                <td>{{ $data->designation }}</td>
+                                                <td><?php  echo ucwords(str_replace("_"," ", $data->department)); ?></td>
                                                 @if($role->role == "Administor")
                                                 <td>
                                                     <form class="d-inline" action="/user/{{ $data->id_user }}/edit"

@@ -21,19 +21,20 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required',
+            'username' => 'required',
             'password' => 'required'
         ]);
 
 
-        User::where('email', $credentials);
+        User::where('username', $credentials);
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            Alert::success('Success', 'Login success !');
+            Alert::success('Success', 'Login success!');
+            
             return redirect()->intended('/dashboard');
         } else {
-            Alert::error('Error', 'Login failed !');
+            Alert::error('Error', 'Login failed!');
             return redirect('/login');
         }
     }
@@ -49,7 +50,7 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required',
-            'email' => 'required|unique:users',
+            'username' => 'required|unique:users',
             'password' => 'required',
             'passwordConfirm' => 'required|same:password'
         ]);
@@ -58,7 +59,7 @@ class AuthController extends Controller
 
         $user = User::create($validated);
 
-        Alert::success('Success', 'Register user has been successfully !');
+        Alert::success('Success', 'Register user has been successfully!');
         return redirect('/login');
     }
 
@@ -68,7 +69,9 @@ class AuthController extends Controller
 
         request()->session()->invalidate();
         request()->session()->regenerateToken();
-        Alert::success('Success', 'Log out success !');
+        Alert::success('Success', 'Log out success!');
         return redirect('/login');
     }
+
+   
 }

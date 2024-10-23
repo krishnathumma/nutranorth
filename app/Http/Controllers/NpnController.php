@@ -133,35 +133,36 @@ class NpnController extends Controller
 
         $npn = Npn::findOrFail($id);
         if($npn->update($validated)) {
+            if($request->file != NULL) {
+                $exist_files = Files::where('type_id',$id)->get();
 
-            $exist_files = Files::where('type_id',$id)->get();
+                $name = time().'_'.$request->file('filename')->getClientOriginalName();
+                $filePath = $request->file('filename')->storeAs('npns', $name, 'public');
 
-            $name = time().'_'.$request->file('filename')->getClientOriginalName();
-            $filePath = $request->file('filename')->storeAs('npns', $name, 'public');
+                if($exist_files->count() != 0){
+                    $file = Files::findOrFail(collect($exist_files)->first()->id);
 
-            if($exist_files->count() != 0){
-                $file = Files::findOrFail(collect($exist_files)->first()->id);
+                    $files_updated = [
+                        'file_name' => $name,
+                        'file_path' => $filePath,
+                        'type' => 'Npn',
+                        'type_id' => $id,
+                        'updated_by' => auth()->user()->role_id
+                    ];
 
-                $files_updated = [
-                    'file_name' => $name,
-                    'file_path' => $filePath,
-                    'type' => 'Npn',
-                    'type_id' => $id,
-                    'updated_by' => auth()->user()->role_id
-                ];
+                    $file->update($files_updated);
 
-                $file->update($files_updated);
+                } else {
+                    $file = new files();
 
-            } else {
-                $file = new files();
-
-                $file->file_name = $name;
-                $file->file_path = $filePath;
-                $file->type = 'Npn';
-                $file->type_id = $npn->id;
-                $file->created_by = auth()->user()->role_id;
-                $file->updated_by = auth()->user()->role_id;
-                $file->save();
+                    $file->file_name = $name;
+                    $file->file_path = $filePath;
+                    $file->type = 'Npn';
+                    $file->type_id = $npn->id;
+                    $file->created_by = auth()->user()->role_id;
+                    $file->updated_by = auth()->user()->role_id;
+                    $file->save();
+                }
             }
         }
 

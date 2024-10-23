@@ -34,7 +34,7 @@
                 <form class="needs-validation" novalidate action="/login" method="POST">
                     @csrf
                     <div class="input-group mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email" required>
+                        <input type="text" name="username" class="form-control" placeholder="User Name" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>

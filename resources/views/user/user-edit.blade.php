@@ -36,9 +36,11 @@
                 </a>
               </div>
             </div>
-            <form class="needs-validation" novalidate action="/user/{{ $user->id }}" method="POST">
+            
+            <form class="needs-validation" novalidate action="/user/{{ $user->id_user }}" method="POST">
               @csrf
               @method('PUT')
+            
               <div class="card-body">
                 <div class="row">
                   <div class="col-lg-6">
@@ -95,6 +97,51 @@
                     </div>
                   </div>
                 </div>
+
+                <?php 
+                  $department = [
+                    'qa' => 'QA',
+                    'purchase' => "Purchase",
+                    'costing' => 'Costing',
+                    'sales/marketing' => 'Sales/Marketing',
+                    'digital_design' => "Digital Design",
+                    'it' => "IT",
+                    'production' => "Production",
+                    'accounts' => "Accounts",
+                    'administration' => "Administration",
+                    'others' => "Others"
+                  ];
+                ?>
+                <div class="row">
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="location">Department</label>
+                      <select name="department" id="department_id" class="form-control" required>
+                          <option value="">Plase Select</option>
+                          @foreach ($department as $key => $value)
+                              <option value="{{ $key }}" <?php if( $key == $user->department) echo 'selected="selected"'; ?>>
+                                  {{ $value  }}
+                              </option>
+                          @endforeach
+                      </select> 
+                      @error('department')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="designation">Designation</label>
+                      <input type="text" name="designation" class="form-control @error('designation') is-invalid @enderror" id="designation" value="<?php echo $user->designation; ?>" required>
+                      @error('designation')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+
+              </div>  
 
                 <!-- <div class="row">
                   <div class="col-lg-6">

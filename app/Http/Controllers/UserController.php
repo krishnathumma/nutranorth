@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 use Exception;
 
+use App\Mail\SendMailsToUsers;
+use Mail;
+
 class UserController extends Controller
 {
     /**
@@ -21,11 +24,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        //$user = User::orderBy('name', 'asc')->get();
         $user = DB::table('users')
             ->leftjoin('roles', 'users.role_id', '=', 'roles.id')
             ->leftjoin('locations', 'users.location_id', '=', 'locations.id')
-            ->select('users.id_user','users.name','users.email', 'roles.id','roles.role','locations.location_name')
+            ->select('users.id_user','users.name','users.username','users.email', 'users.department', 'users.designation', 'roles.id','roles.role','locations.location_name')
             ->whereRaw('users.deleted_at = "" OR users.deleted_at IS NULL')
             ->get();
 
@@ -55,17 +57,21 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|max:100',
-            'email' => 'required|max:100|email|unique:users',
+            'username' => 'required|max:100|unique:users',
+            'email' => 'required|max:100|email',
             'password' => 'required|max:200',
             'location_id' => 'required',
             'role_id' => 'required',
+            'department' => 'required|max:200',
+            'designation' => 'required|max:200',
         ]);
-        $validated['password'] = Hash::make($request['password']);
-        
 
+        $validated['password'] = Hash::make($request['password']);
         $user = User::create($validated);
 
-        Alert::success('Success', 'User has been saved !');
+        $this->usermail($request['username'], $request['password'], $request['name'], $request['email']);
+
+        Alert::success('Success', 'User has been saved!');
         return redirect('/user');
     }
 
@@ -100,17 +106,19 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|max:100',
-            'email' => 'required|max:100|email|unique:users',
+            'email' => 'required|max:100|email',
             'location_id' => 'required',
             'role_id' => 'required',
+            'department' => 'required|max:200',
+            'designation' => 'required|max:200'
         ]);
 
         $validated['updated_by'] = auth()->user()->role_id;
         
-        $role = User::findOrFail($id);
-        $role->update($validated);
+        $user = User::findOrFail($id);
+        $user->update($validated);
 
-        Alert::success('Success', 'User has been saved !');
+        Alert::success('Success', 'User has been Updated!');
         return redirect('/user');
     }
 
@@ -128,10 +136,10 @@ class UserController extends Controller
 
             $deletedrole->update($validated);
 
-            Alert::error('Success', 'User has been deleted !');
+            Alert::error('Success', 'User has been deleted!');
             return redirect('/user');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, User already used !');
+            Alert::warning('Error', 'Cant deleted, User already used!');
             return redirect('/user');
         }
     }
@@ -150,7 +158,6 @@ class UserController extends Controller
 
     public function changePasswordSave(Request $request)
     {   
-
        
         $this->validate($request, [
             'current_password' => 'required|string',
@@ -173,5 +180,48 @@ class UserController extends Controller
         $user->password = Hash::make($request->new_password);
         $user->save();
         return back()->with('success', "Password Changed Successfully");
+    }
+
+    public function usermail($username, $password, $name, $emailId)
+    {
+        $subject = 'Welcome, ' .$name. '! Your Account Has Been Created';
+        $url = "Thanks<br/>Nutra North";
+        
+        $htmldata = '<!doctype html>
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport"   content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+                    <style>
+                        p { font-size: 12px; }
+                        .signature { font-style: italic; }
+                    </style>
+                </head>
+                <body>
+                <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
+                  <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
+                    <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
+                      <div style="border-color:#e5e5e5;border-style:none solid solid;border-width:2px;padding:7%">
+                        <p style="color:#333;font-size:14px;line-height:1.4;margin:0 0 20px">Hello '.$name.',</p>
+                        <p style="color:#333;font-size:13px;line-height:1.4;margin:20px 0">
+                          Your account has been successfully created, and following are the login Details:<br />
+                          User Name: '.ucfirst($username).' <br />
+                          password: '.$password.' <br />
+                        </p> 
+                        '.$url.'
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </body>';
+              $htmldata .= '</html>';
+              
+              try {
+                Mail::to($emailId)->send(new SendMailsToUsers($name, $subject, $htmldata));
+            } catch (\Exception $e) {
+                \Log::error('Mail error: ' . $e->getMessage());
+            }      
     }
 }

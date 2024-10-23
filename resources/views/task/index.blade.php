@@ -54,7 +54,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        
+                                        <?php 
+                                           // echo "<pre>";
+                                            //print_r($task);
+                                        ?>
                                         @foreach ($task as $data)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
@@ -73,7 +76,7 @@
                                                             <i class="fa-solid fa-pen"></i> Edit
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#createModal">
+                                                    <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#createModal_{{$data->id}}">
                                                         <i class="fa-solid fa-eye"></i> View
                                                     </button>
 
@@ -87,7 +90,7 @@
                                                     </form>
                                                 </td>
                                                 @endif
-                                                <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModal" >
+                                                <div class="modal fade" id="createModal_{{$data->id}}" tabindex="-1" role="dialog" aria-labelledby="createModal" >
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
@@ -97,14 +100,16 @@
                                                                 </button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>{{ $data->description}}</p>
+                                                                <p><?php echo $data->description; ?></p>
                                                             </div>
+                                                            <?php if($data->files_id) { ?>
                                                             <div class="modal-body">
                                                                 <p>Task Upload files Donload : </p>
                                                                 
                                                                 <a href="{{ URL::to( '/download/' . $data->files_id)  }}" >File Download</a>
 
-                                                            </div>
+                                                            </div> 
+                                                            <?php } ?>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                                             </div>

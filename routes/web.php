@@ -50,7 +50,7 @@ Route::get('/', [DashboardController::class, 'index'])->middleware('auth');
 //route user
 Route::resource('/user', UserController::class)->middleware('auth');
 
-Route::put('user/{id}','UserController@update')->name('user.update');
+Route::put('/user/{id}','UserController@update');
 
 //route location
 Route::resource('/location', LocationController::class)->middleware('auth');

@@ -25,7 +25,10 @@ class SupplierController extends Controller
     {
         $suppliers = DB::table('suppliers')
             ->leftjoin('users', 'suppliers.created_by', '=', 'users.id_user')
-            ->leftjoin('files', 'suppliers.id', '=', 'files.type_id')
+            ->leftJoin('files', function($join) {
+                $join->on('suppliers.id', '=', 'files.type_id')
+                    ->where('files.type', '=', 'Supplier');
+            })
             ->select('suppliers.*','users.name as user_name','files.id as files_id')
             ->whereRaw('suppliers.deleted_at = "" OR suppliers.deleted_at IS NULL')
             ->get();
@@ -62,7 +65,7 @@ class SupplierController extends Controller
             'mobile' => 'required|max:12',
             'price' => 'required|max:250',
             'received_date' => 'max:1200',
-            'filename' => 'required|file|mimes:pdf,zip|max:2048'
+            'filename' => 'file|mimes:pdf,zip|max:2048'
         ]);
 
         
@@ -138,35 +141,36 @@ class SupplierController extends Controller
 
         $supplier = Supplier::findOrFail($id);
         if($supplier->update($validated)){
+            if($request->file != NULL) {
+                $exist_files = Files::where('type_id',$id)->get();
+                $name = time().'_'.$request->file('filename')->getClientOriginalName();
+                $filePath = $request->file('filename')->storeAs('suppliers', $name, 'public');
 
-            $exist_files = Files::where('type_id',$id)->get();
-            $name = time().'_'.$request->file('filename')->getClientOriginalName();
-            $filePath = $request->file('filename')->storeAs('suppliers', $name, 'public');
+                if($exist_files->count() != 0){
+                    $file = Files::findOrFail(collect($exist_files)->first()->id);
 
-            if($exist_files->count() != 0){
-                $file = Files::findOrFail(collect($exist_files)->first()->id);
+                    $files_updated = [
+                        'file_name' => $name,
+                        'file_path' => $filePath,
+                        'type' => 'Supplier',
+                        'type_id' => $id,
+                        'updated_by' => auth()->user()->role_id
+                    ];
 
-                $files_updated = [
-                    'file_name' => $name,
-                    'file_path' => $filePath,
-                    'type' => 'Supplier',
-                    'type_id' => $id,
-                    'updated_by' => auth()->user()->role_id
-                ];
+                    $file->update($files_updated);
 
-                $file->update($files_updated);
+                } else {
+                    $file = new files();
 
-            } else {
-                $file = new files();
+                    $file->file_name = $name;
+                    $file->file_path = $filePath;
+                    $file->type = 'Supplier';
+                    $file->type_id = $id;
+                    $file->created_by = auth()->user()->role_id;
+                    $file->updated_by = auth()->user()->role_id;
 
-                $file->file_name = $name;
-                $file->file_path = $filePath;
-                $file->type = 'Supplier';
-                $file->type_id = $id;
-                $file->created_by = auth()->user()->role_id;
-                $file->updated_by = auth()->user()->role_id;
-
-                $file->save();
+                    $file->save();
+                }
             }
     
                       

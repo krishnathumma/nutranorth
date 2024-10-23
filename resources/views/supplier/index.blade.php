@@ -71,7 +71,7 @@
                                                             <i class="fa-solid fa-pen"></i> Edit
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#createModal">
+                                                    <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#createModal_{{ $data->id }}">
                                                         <i class="fa-solid fa-eye"></i> View
                                                     </button>
 
@@ -85,11 +85,11 @@
                                                     </form>
                                                 </td>
                                                 @endif
-                                                <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModal" >
+                                                <div class="modal fade" id="createModal_{{ $data->id }}" tabindex="-1" role="dialog" aria-labelledby="createModal" >
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title">Product</h5>
+                                                                <h5 class="modal-title">Supplier - <?php echo ucfirst($data->name); ?></h5>
                                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                                 </button>
@@ -97,9 +97,11 @@
                                                             <div class="modal-body">
                                                                 <p>{{ $data->product}}</p>
                                                             </div>
+                                                            <?php if($data->files_id) {?>
                                                             <div class="modal-body">
                                                                 <a href="{{ URL::to( '/download/' . $data->files_id)  }}" >File Download</a>
                                                             </div>
+                                                            <?php } ?>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                                             </div>

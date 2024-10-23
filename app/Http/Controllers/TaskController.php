@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Mail\SendMailsToUsers;
-use Illuminate\Support\Facades\Mail;
+use Mail;
+// use Illuminate\Support\Facades\Mail;
 // use App\Mail\MailSender;
 use Exception;
 
@@ -25,12 +26,12 @@ class TaskController extends Controller
      */
     public function index()
     {
-        // $this->taskmail(2, 'add');
-        // exit;
-        
         $task = DB::table('tasks')
             ->leftjoin('users', 'tasks.assigned_to', '=', 'users.id_user')
-            ->leftjoin('files', 'tasks.id', '=', 'files.type_id')
+            ->leftJoin('files', function($join) {
+                $join->on('tasks.id', '=', 'files.type_id')
+                    ->where('files.type', '=', 'Task');
+            })
             ->select('tasks.*','users.name', 'files.id as files_id')
             ->whereRaw('tasks.deleted_at = "" OR tasks.deleted_at IS NULL')
             ->get();
@@ -67,15 +68,13 @@ class TaskController extends Controller
             'due_date' => 'required',
             'status' => 'required|max:250',
             'description' => 'max:1200',
-            'filename' => 'required|mimes:png,jpg,jpeg,csv,txt,xlx,xls,pdf|max:10000'
+            'filename' => 'mimes:png,jpg,jpeg,csv,txt,xlx,xls,pdf|max:10000'
         ]);
 
         
         $validated['created_by'] = auth()->user()->role_id;
         $validated['updated_by'] = auth()->user()->role_id;
 
-        //dd($request->file('filename')->getClientOriginalName());
-        //$this->taskmail(2, 'add');
         $task = Task::create($validated);
         
         if($task){
@@ -98,7 +97,7 @@ class TaskController extends Controller
                 }
             }
         }
-
+        $this->taskmail($task->id, 'add');
         Alert::success('Success', 'Task has been saved !');
         return redirect('/task');
     }
@@ -132,44 +131,48 @@ class TaskController extends Controller
             'status' => 'required|max:250',
             'description' => 'max:1200'
         ]);
-        
+
+       
         $validated['updated_by'] = auth()->user()->role_id;
 
         $task = Task::findOrFail($id);
         if($task->update($validated)) {
 
-            $exist_files = Files::where('type_id',$id)->get();
+            if($request->file != NULL) {
+                $exist_files = Files::where('type_id',$id)->get();
 
-            $name = time().'_'.$request->file('filename')->getClientOriginalName();
-            $filePath = $request->file('filename')->storeAs('tasks', $name, 'public');
+                $name = time().'_'.$request->file('filename')->getClientOriginalName();
+                $filePath = $request->file('filename')->storeAs('tasks', $name, 'public');
 
-            if($exist_files->count() != 0){
-                $file = Files::findOrFail(collect($exist_files)->first()->id);
+                if($exist_files->count() != 0){
+                    $file = Files::findOrFail(collect($exist_files)->first()->id);
 
-                $files_updated = [
-                    'file_name' => $name,
-                    'file_path' => $filePath,
-                    'type' => 'Task',
-                    'type_id' => $id,
-                    'updated_by' => auth()->user()->role_id
-                ];
+                    $files_updated = [
+                        'file_name' => $name,
+                        'file_path' => $filePath,
+                        'type' => 'Task',
+                        'type_id' => $id,
+                        'updated_by' => auth()->user()->role_id
+                    ];
 
-                $file->update($files_updated);
+                    $file->update($files_updated);
 
-            } else {
-                $file = new files();
+                } else {
+                    $file = new files();
 
-                $file->file_name = $name;
-                $file->file_path = $filePath;
-                $file->type = 'Task';
-                $file->type_id = $task->id;
-                $file->created_by = auth()->user()->role_id;
-                $file->updated_by = auth()->user()->role_id;
-                $file->save();
+                    $file->file_name = $name;
+                    $file->file_path = $filePath;
+                    $file->type = 'Task';
+                    $file->type_id = $task->id;
+                    $file->created_by = auth()->user()->role_id;
+                    $file->updated_by = auth()->user()->role_id;
+                    $file->save();
+                }
             }
+            
         }
-
-        Alert::info('Success', 'Task has been updated !');
+        $this->taskmail($task->id, 'edit');
+        Alert::info('Success', 'Task has been updated!');
         return redirect('/task');
     }
 
@@ -225,7 +228,7 @@ class TaskController extends Controller
 		}
 
 		$url = "Thanks<br/>Nutra North";
-        $htmlheader = '<!doctype html>
+        $htmldata = '<!doctype html>
                             <html lang="en">
                             <head>
                                 <meta charset="UTF-8">
@@ -245,7 +248,7 @@ class TaskController extends Controller
                             </head>';
 
 		if(strtolower($type) == 'add' || strtolower($type) == 'edit'){
-			$htmlbody  ='<body>
+			$htmldata  .='<body>
 	          <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
 	            <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
 	              <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
@@ -271,7 +274,7 @@ class TaskController extends Controller
 
 		} else {
             $updated_user = DB::table('users')->where('id', $task->updated_by)->first();
-			$htmlbody  ='<body>
+			$htmldata  .='<body>
 	          <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
 	            <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
 	              <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
@@ -289,20 +292,25 @@ class TaskController extends Controller
 	        </body>';
 		}
 
-        $htmlfooter = '</html>';
-
-        $html = $htmlheader.$htmlbody.$htmlfooter;
+        $htmldata .= '</html>';
+     
+        
         $files = DB::table('files')->where(['type_id'=> $task->id,'type'=>'Task'])->first();
         $filePath = '';
-        $mail = $user->email = "nnnutra1330@gmail.com";
+        $mail = $user->email;
         $name = $user->name;
 
         if($files != null || $files != '')
-        {
+        {   
             $filePath = public_path() . '/storage/' . $files->file_path;
         } 
+
         
-        Mail::to("nnnutra1330@gmail.com")->send(new SendMailsToUsers($name, $html, $subject, $filePath));
+        try {
+            Mail::to($mail)->send(new SendMailsToUsers($name, $subject, $htmldata, $filePath));
+        } catch (\Exception $e) {
+            \Log::error('Mail error: ' . $e->getMessage());
+        }
 
     }
     

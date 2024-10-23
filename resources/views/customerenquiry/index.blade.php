@@ -31,7 +31,7 @@
                             <div class="card-header">
                                 <div class="text-right">
                                     <a href="/customerenquiry/create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
-                                    customer Enquiry</a>
+                                    Customer Enquiry</a>
                                 </div>
                             </div>
                             <!-- /.card-header -->

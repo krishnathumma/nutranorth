@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '0fbf1aaba0bd42d8cf034c0c23599d397723164e',
+        'reference' => 'c6dd75e4c13e7923df3912def3822d8ed3af200f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -409,7 +409,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '0fbf1aaba0bd42d8cf034c0c23599d397723164e',
+            'reference' => 'c6dd75e4c13e7923df3912def3822d8ed3af200f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -529,15 +529,6 @@
             'reference' => '6187e9cc4493da94b9b63eb2315821552015fca9',
             'type' => 'library',
             'install_path' => __DIR__ . '/../maennchen/zipstream-php',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'mailgun/mailgun-php' => array(
-            'pretty_version' => 'v4.3.2',
-            'version' => '4.3.2.0',
-            'reference' => 'cc2e0ae4427ef09c738c1758eb391282accafc4d',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../mailgun/mailgun-php',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -677,7 +668,6 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '*',
-                1 => '1.0',
             ),
         ),
         'php-http/client-common' => array(
@@ -693,7 +683,6 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '*',
-                1 => '1.0',
             ),
         ),
         'php-http/discovery' => array(
@@ -702,15 +691,6 @@
             'reference' => '82fe4c73ef3363caed49ff8dd1539ba06044910d',
             'type' => 'composer-plugin',
             'install_path' => __DIR__ . '/../php-http/discovery',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'php-http/guzzle7-adapter' => array(
-            'pretty_version' => '1.0.0',
-            'version' => '1.0.0.0',
-            'reference' => 'fb075a71dbfa4847cf0c2938c4e5a9c478ef8b01',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../php-http/guzzle7-adapter',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -746,15 +726,6 @@
             'provided' => array(
                 0 => '1.0',
             ),
-        ),
-        'php-http/multipart-stream-builder' => array(
-            'pretty_version' => '1.4.2',
-            'version' => '1.4.2.0',
-            'reference' => '10086e6de6f53489cca5ecc45b6f468604d3460e',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../php-http/multipart-stream-builder',
-            'aliases' => array(),
-            'dev_requirement' => false,
         ),
         'php-http/promise' => array(
             'pretty_version' => '1.3.1',
@@ -1318,15 +1289,6 @@
             'reference' => 'b6a25408c569ae2366b3f663a4edad19420a9c26',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/mailer',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'symfony/mailgun-mailer' => array(
-            'pretty_version' => 'v7.1.3',
-            'version' => '7.1.3.0',
-            'reference' => 'dac02fe68e9306849703025511c56f10701696a8',
-            'type' => 'symfony-mailer-bridge',
-            'install_path' => __DIR__ . '/../symfony/mailgun-mailer',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

@@ -79,7 +79,7 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $role->update($validated);
 
-        Alert::info('Success', 'role has been updated !');
+        Alert::info('Success', 'role has been updated!');
         return redirect('/role');
     }
 
