@@ -50,12 +50,12 @@ class MachineController extends Controller
             'speed' => 'required|max:100',
         ]);
 
-        $validated['created_by'] = auth()->user()->role_id;
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['created_by'] = auth()->user()->id_user;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $machine = Machine::create($validated);
 
-        Alert::success('Success', 'Machine has been saved !');
+        Alert::success('Success', 'Machine has been saved!');
         return redirect('/machine');
     }
 
@@ -91,12 +91,12 @@ class MachineController extends Controller
             'speed' => 'required|max:100',
         ]);
 
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $role = Machine::findOrFail($id);
         $role->update($validated);
 
-        Alert::info('Success', 'Machine has been updated !');
+        Alert::info('Success', 'Machine has been updated!');
         return redirect('/machine');
     }
 
@@ -112,17 +112,17 @@ class MachineController extends Controller
 
             $deletedrole = Machine::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedrole->update($validated);
 
             //$deletedrole->delete();
 
-            Alert::error('Success', 'Machine has been deleted !');
+            Alert::error('Success', 'Machine has been deleted!');
             return redirect('/machine');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Location already used !');
+            Alert::warning('Error', 'Cant deleted, Location already used!');
             return redirect('/machine');
         }
     }

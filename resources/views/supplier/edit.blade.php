@@ -58,7 +58,7 @@
 
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label for="name">Name</label>
+                      <label for="name">Supplier Name</label>
                       <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" id="role" value="{{old('name', $supplier->name)}}" required>
                      
                       @error('name')
@@ -69,9 +69,9 @@
 
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label for="place">Place</label>
-                      <input type="text" name="place" class="form-control @error('place') is-invalid @enderror" id="role" value="{{old('place', $supplier->place)}}" required>
-                      @error('place')
+                      <label for="contact_person">Contact Person</label>
+                      <input type="text" name="contact_person" class="form-control @error('contact_person') is-invalid @enderror" id="contact_person" value="{{old('contact_person', $supplier->contact_person)}}" required>
+                      @error('contact_person')
                       <span class="invalid-feedback text-danger">{{ $message }}</span>
                       @enderror
                     </div>
@@ -104,14 +104,21 @@
                 </div>
 
                 <div class="row">
-
+                  <?php 
+                  $selected_ara = explode(",",$supplier->category);
+                   ?>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label for="name">Currency</label>
-                      <select name="currency" id="currency" class="form-control" required>
+                      <label for="name">Category Of Material</label>
+                      <select name="category[]" select2 select2-hidden-accessible id="dynamicAttributes" class="form-control" required multiple="true" data-tags="true">
                           <option value="">Plase Select</option>
-                          <?php foreach ($currency as $key => $value) { ?>
-                                <option value="<?php echo $key; ?>" <?php if($key == $supplier->currency) echo 'selected="selected"'; ?>><?php echo $value; ?></option>
+                          <?php foreach ($category as $value) { 
+                              $selected = "";
+                              if(in_array($value->name, $selected_ara)){
+                                $selected = " Selected ";
+                              }
+                            ?>
+                                <option value="<?php echo $value->id; ?>" <?php echo $selected; ?>><?php echo $value->name; ?></option>
                             <?php } ?>
                       </select>
                       @error('currency')
@@ -122,9 +129,33 @@
 
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label for="price">Price</label>
-                      <input type="number" name="price" class="form-control @error('price') is-invalid @enderror" id="price" value="{{old('price', $supplier->price)}}" step="0.01" required>
-                      @error('price')
+                      <label for="selling_materials">Main Selling Materials</label>
+                      <input type="text" name="selling_materials" class="form-control @error('selling_materials') is-invalid @enderror" id="selling_materials" placeholder="Selling Materials" value="{{old('selling_materials', $supplier->selling_materials)}}" required>
+                      @error('selling_materials')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="row">
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="name">Main Address</label>
+                      <input type="text" name="address" class="form-control @error('address') is-invalid @enderror" id="address" placeholder="Main Address" value="{{old('address',  $supplier->address)}}" required>     
+                      @error('address')
+                      <span class="invalid-feedback text-danger">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label for="location">Shipping Locations</label>
+                      <input type="text" name="location" class="form-control @error('location') is-invalid @enderror" id="location" placeholder="Shipping Location" value="{{old('location',  $supplier->location)}}" required>
+                      @error('location')
                       <span class="invalid-feedback text-danger">{{ $message }}</span>
                       @enderror
                     </div>

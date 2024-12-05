@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use RealRashid\SweetAlert\Facades\Alert;
 use Exception;
+use App\DataTables\ExportDataTable;
 
 class NpnController extends Controller
 {
@@ -63,8 +64,8 @@ class NpnController extends Controller
             'filename'=> 'mimes:pdf,doc,docx,xlx,csv,jpg,png|max:4048',
         ]);
         
-        $validated['created_by'] = auth()->user()->role_id;
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['created_by'] = auth()->user()->id_user;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $npn = Npn::create($validated);
 
@@ -82,15 +83,15 @@ class NpnController extends Controller
                     $file->file_path = $filePath;
                     $file->type = 'Npn';
                     $file->type_id = $task->id;
-                    $file->created_by = auth()->user()->role_id;
-                    $file->updated_by = auth()->user()->role_id;
+                    $file->created_by = auth()->user()->id_user;
+                    $file->updated_by = auth()->user()->id_user;
                     $file->save();
     
                 }
             }
         }
 
-        Alert::success('Success', 'Npn has been saved !');
+        Alert::success('Success', 'Npn has been saved!');
         return redirect('/npn');
     }
 
@@ -129,7 +130,7 @@ class NpnController extends Controller
             //'filename' => 'file|mimes:pdf,zip|max:2048'
         ]);
 
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $npn = Npn::findOrFail($id);
         if($npn->update($validated)) {
@@ -147,7 +148,7 @@ class NpnController extends Controller
                         'file_path' => $filePath,
                         'type' => 'Npn',
                         'type_id' => $id,
-                        'updated_by' => auth()->user()->role_id
+                        'updated_by' => auth()->user()->id_user
                     ];
 
                     $file->update($files_updated);
@@ -159,14 +160,14 @@ class NpnController extends Controller
                     $file->file_path = $filePath;
                     $file->type = 'Npn';
                     $file->type_id = $npn->id;
-                    $file->created_by = auth()->user()->role_id;
-                    $file->updated_by = auth()->user()->role_id;
+                    $file->created_by = auth()->user()->id_user;
+                    $file->updated_by = auth()->user()->id_user;
                     $file->save();
                 }
             }
         }
 
-        Alert::success('Success', 'Npn has been saved !');
+        Alert::success('Success', 'Npn has been saved!');
         return redirect('/npn');
     }
 
@@ -178,15 +179,15 @@ class NpnController extends Controller
         try {
             $deletednpn = Npn::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletednpn->update($validated);
 
-            Alert::error('Success', 'Npn has been deleted !');
+            Alert::error('Success', 'Npn has been deleted!');
             return redirect('/npn');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Npn already used !');
+            Alert::warning('Error', 'Cant deleted, Npn already used!');
             return redirect('/npn');
         }
     }

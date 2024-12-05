@@ -113,7 +113,7 @@ class UserController extends Controller
             'designation' => 'required|max:200'
         ]);
 
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
         
         $user = User::findOrFail($id);
         $user->update($validated);
@@ -131,7 +131,7 @@ class UserController extends Controller
 
             $deletedrole = User::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedrole->update($validated);
@@ -218,7 +218,7 @@ class UserController extends Controller
               </body>';
               $htmldata .= '</html>';
               
-              try {
+            try {
                 Mail::to($emailId)->send(new SendMailsToUsers($name, $subject, $htmldata));
             } catch (\Exception $e) {
                 \Log::error('Mail error: ' . $e->getMessage());

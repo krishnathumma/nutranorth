@@ -62,8 +62,8 @@ class CustomerenquiryController extends Controller
         ]);
 
         
-        $validated['created_by'] = auth()->user()->role_id;
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['created_by'] = auth()->user()->id_user;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $ces = Customerenquiry::create($validated);
 
@@ -109,7 +109,7 @@ class CustomerenquiryController extends Controller
         ]);
 
         
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $ces = Customerenquiry::findOrFail($id);
         $ces->update($validated);
@@ -127,7 +127,7 @@ class CustomerenquiryController extends Controller
         try {
             $deletedRecord = Customerenquiry::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedRecord->update($validated);

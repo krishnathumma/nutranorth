@@ -43,7 +43,7 @@ class RoleController extends Controller
 
         $role = Role::create($request->all());
 
-        Alert::success('Success', 'Role has been saved !');
+        Alert::success('Success', 'Role has been saved!');
         return redirect('/role');
     }
 
@@ -94,15 +94,15 @@ class RoleController extends Controller
             // $model->delete();
             $deletedrole = Role::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedrole->update($validated);
 
-            Alert::error('Success', 'Role has been deleted !');
+            Alert::error('Success', 'Role has been deleted!');
             return redirect('/role');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Location already used !');
+            Alert::warning('Error', 'Cant deleted, Location already used!');
             return redirect('/role');
         }
     }

@@ -125,7 +125,7 @@
 
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label for="source">source</label>
+                      <label for="source">Source</label>
                       <input type="text" name="source" class="form-control @error('source') is-invalid @enderror" id="source" placeholder="source" value="{{old('source')}}" required>
                       @error('source')
                       <span class="invalid-feedback text-danger">{{ $message }}</span>

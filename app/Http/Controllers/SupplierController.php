@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\Role;
 use App\Models\Supplier;
 use App\Models\Files;
+use App\Models\Category;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -47,8 +48,9 @@ class SupplierController extends Controller
     public function create()
     {
         $users = User::whereNull('deleted_at')->orderBy('name', 'asc')->get();
+        $category = Category::whereNull('deleted_at')->orderBy('name', 'asc')->get();
 
-        return view('supplier.add',['users' => $users]);
+        return view('supplier.add',['users' => $users, 'category' => $category]);
     }
 
     /**
@@ -56,19 +58,25 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        
         $validated = $request->validate([
             'name' => 'required|max:100',
-            'place' => 'required|max:100',
-            'product' => 'required|max:200',
+            'contact_person' => 'required|max:100',
+            'product' => 'max:2500',
             'email' => 'required',
-            'currency' => 'required',
+            'selling_materials' => 'max:100',
             'mobile' => 'required|max:12',
-            'price' => 'required|max:250',
-            'received_date' => 'max:1200',
+            'address' => 'required|max:250',
+            'received_date' => 'max:120',
+            'location' => 'max:100',
             'filename' => 'file|mimes:pdf,zip|max:2048'
         ]);
 
-        
+        $cat = $request->input('category');
+        $statement = "SELECT GROUP_CONCAT(name) as name_list FROM category WHERE id IN ( ". implode(',', $cat) ." )";
+        $results = DB::select( $statement );
+        $validated['category'] = $results[0]->name_list;
+
         $validated['created_by'] = auth()->user()->role_id;
         $validated['updated_by'] = auth()->user()->role_id;
 
@@ -115,9 +123,10 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::findOrFail($id);
         $users = User::whereNull('deleted_at')->orderBy('name', 'asc')->get();
+        $category = Category::whereNull('deleted_at')->orderBy('name', 'asc')->get();
 
         return view('supplier.edit', [
-            'supplier' => $supplier, 'users' => $users
+            'supplier' => $supplier, 'users' => $users, 'category' => $category
         ]);
     }
 
@@ -126,16 +135,24 @@ class SupplierController extends Controller
      */
     public function update(Request $request, string $id)
     {
+       
         $validated = $request->validate([
             'name' => 'required|max:100',
-            'place' => 'required|max:100',
-            'product' => 'required|max:200',
+            'contact_person' => 'required|max:100',
+            'product' => 'max:2500',
             'email' => 'required',
-            'currency' => 'required',
+            'selling_materials' => 'max:100',
             'mobile' => 'required|max:12',
-            'price' => 'required|max:250',
-            'received_date' => 'max:120'
+            'address' => 'required|max:250',
+            'received_date' => 'max:120',
+            'location' => 'max:100',
+            'filename' => 'file|mimes:pdf,zip|max:2048'
         ]);
+
+        $cat = $request->input('category');
+        $statement = "SELECT GROUP_CONCAT(name) as name_list FROM category WHERE id IN ( ". implode(',', $cat) ." )";
+        $results = DB::select( $statement );
+        $validated['category'] = $results[0]->name_list;
         
         $validated['updated_by'] = auth()->user()->role_id;
 
@@ -154,7 +171,7 @@ class SupplierController extends Controller
                         'file_path' => $filePath,
                         'type' => 'Supplier',
                         'type_id' => $id,
-                        'updated_by' => auth()->user()->role_id
+                        'updated_by' => auth()->user()->id_user
                     ];
 
                     $file->update($files_updated);
@@ -166,8 +183,8 @@ class SupplierController extends Controller
                     $file->file_path = $filePath;
                     $file->type = 'Supplier';
                     $file->type_id = $id;
-                    $file->created_by = auth()->user()->role_id;
-                    $file->updated_by = auth()->user()->role_id;
+                    $file->created_by = auth()->user()->id_user;
+                    $file->updated_by = auth()->user()->id_user;
 
                     $file->save();
                 }
@@ -176,7 +193,7 @@ class SupplierController extends Controller
                       
         }
 
-        Alert::info('Success', 'Supplier has been updated !');
+        Alert::info('Success', 'Supplier has been updated!');
         return redirect('/supplier');
 
     }
@@ -189,15 +206,15 @@ class SupplierController extends Controller
         try {
             $deletedsupplier = Supplier::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedsupplier->update($validated);
 
-            Alert::error('Success', 'Supplier has been deleted !');
+            Alert::error('Success', 'Supplier has been deleted!');
             return redirect('/supplier');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Supplier already used !');
+            Alert::warning('Error', 'Cant deleted, Supplier already used!');
             return redirect('/supplier');
         }
     }

@@ -45,7 +45,7 @@ class LocationController extends Controller
 
         $location = Location::create($request->all());
 
-        Alert::success('Success', 'Location has been saved !');
+        Alert::success('Success', 'Location has been saved!');
         return redirect('/location');
     }
 
@@ -82,7 +82,7 @@ class LocationController extends Controller
         $location = Location::findOrFail($id);
         $location->update($validated);
 
-        Alert::info('Success', 'Location has been updated !');
+        Alert::info('Success', 'Location has been updated!');
         return redirect('/location');
     }
 
@@ -92,21 +92,19 @@ class LocationController extends Controller
     public function destroy(string $id)
     {
         try {
-
-            // $model = Location::find( $id );
-            // $model->delete();
+            
             $deletedlocation = Location::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedlocation->update($validated);
 
 
-            Alert::error('Success', 'Location has been deleted !');
+            Alert::error('Success', 'Location has been deleted!');
             return redirect('/location');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Location already used !');
+            Alert::warning('Error', 'Cant deleted, Location already used!');
             return redirect('/location');
         }
     }

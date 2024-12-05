@@ -15,6 +15,7 @@ use App\Http\Controllers\AgencyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\CategoryController;
 use App\Mail\SendMailsToUsers;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -60,12 +61,17 @@ Route::resource('/role', RoleController::class)->middleware('auth');
 
 //route task
 Route::resource('/task', TaskController::class)->middleware('auth');
+//Route::get('tasks/export', [TaskController::class, 'exportToExcel'])->name('tasks.export');
+Route::get('task-export', [TaskController::class, 'taskExport'])->name('task-export');
 
 //route task
 //Route::get('/download/{file}', [TaskController::class, 'download'])->name('download')->middleware('auth');
 
 //route Supplier
 Route::resource('/supplier', SupplierController::class)->middleware('auth');
+
+//route Category
+Route::resource('/category', CategoryController::class)->middleware('auth');
 
 //route Npn
 Route::resource('/npn', NpnController::class)->middleware('auth');
@@ -94,20 +100,3 @@ Route::get('/file/create', [FileController::class, 'create'])->middleware('auth'
 Route::post('/upload', [FileController::class, 'upload'])->name('file.upload');
 
 Route::get('/file/execute/{file_id}', [FileController::class, 'execute'])->name('file.execute');
-
-Route::get('/testroute', function() {
-    $filePath = public_path('favicon.ico');
-    $name = "Developer";
-    $subject = "Test Mail";
-    $to_mail = 'psyennam@gmail.com';
-
-    Mail::to($to_mail)->send(new SendMailsToUsers($name, $subject, $filePath));
-});
-
-
-
-
-
-
-
-

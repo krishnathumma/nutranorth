@@ -217,6 +217,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/category" class="nav-link">
+                                <i class="nav-icon fa-solid fa-layer-group"></i>
+                                <p>Category of Material</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/supplier" class="nav-link">
                                 <i class="nav-icon fa-solid fa-truck-field"></i>
                                 <p>Suppliers</p>
@@ -304,12 +310,28 @@
     <!-- Bootstrap 4 -->
     <script src="/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- DataTables  & Plugins -->
-    <script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+    <!-- <script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
     <script src="/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
     <script src="/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
     <script src="/assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="/assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="/assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script> -->
+    
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+
+    <link href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" rel="stylesheet" />
+
+    
+    
     <!-- AdminLTE App -->
     <script src="/assets/dist/js/adminlte.min.js"></script>
     @include('sweetalert::alert', ['cdn' => 'https://cdn.jsdelivr.net/npm/sweetalert2@9'])
@@ -337,11 +359,52 @@
 
     <script>
         $(document).ready(function() {
-            $('#example1').DataTable({
-                responsive: true
+            var table = $('#example1').DataTable({
+                responsive: true,
+                layout: {
+                    bottomEnd: {
+                        paging: {
+                            firstLast: false
+                        }
+                    }
+                }
+                // dom: 'Bfrtip', // Positioning for the buttons
+                // buttons: [
+                //     {
+                //         extend: 'excelHtml5',
+                //         text: 'Export to Excel',
+                //         exportOptions: {
+                //             columns: function ( idx, data, node ) {
+                //                 var numCols = table.columns().header().length; // Get the number of columns dynamically
+                //                 var columnsToExport = Array.from(Array(numCols - 1).keys()); // Exclude the last column dynamically
+                //                 return columnsToExport;
+                //             }
+                //         }
+                //     }
+                // ]
             });
-
         });
+
+        
+        function hideSelected(value) {
+            if (value && !value.selected) {
+                return $('<span>' + value.text + '</span>');
+            }
+         }
+
+        $(document).ready(function() {
+            $('#dynamicAttributes').select2({
+                allowClear: true,
+                placeholder: {
+                id: "",
+                placeholder: "Leave blank to ..."
+                },
+                minimumResultsForSearch: -1,
+                width: 600,
+                templateResult: hideSelected,
+            });
+        });
+
     </script>
 
     <script type="text/javascript">

@@ -42,13 +42,11 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Name</th>
-                                            <th>Place</th>
                                             <th>Email</th>
-                                            <th>Currency</th>
                                             <th>Mobile</th>
-                                            <th>Price</th>
+                                            <th>Contact Person</th>
                                             @if($role->role == "Administor")
-                                            <th>Action</th>
+                                            <th style="width: 19%;">Action</th>
                                             @endif
                                         </tr>
                                     </thead>
@@ -58,11 +56,9 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ ucfirst($data->name) }}</td>
-                                                <td>{{ ucfirst($data->place) }}</td>
                                                 <td>{{ $data->email }}</td>
-                                                <td>{{ strtoupper($data->currency) }}</td>
                                                 <td>{{ $data->mobile }}</td>
-                                                <td>{{ $data->price }}</td>
+                                                <td>{{ $data->contact_person }}</td>
                                                 @if($role->role == "Administor")
                                                 <td>
                                                     <form class="d-inline" action="/supplier/{{ $data->id }}/edit"
@@ -95,7 +91,23 @@
                                                                 </button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>{{ $data->product}}</p>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div id="s_row" class="col_full">
+                                                                            <p><b>Category:</b> {{ $data->category}}</p>
+                                                                        </div>
+                                                                        <div id="s_row" class="col_full">
+                                                                            <p><b>Selling Materials:</b> {{ $data->selling_materials}}</p>
+                                                                        </div>
+                                                                        <div id="s_row" class="col_full">
+                                                                            <p><b>Main Address:</b> {{ $data->address}}</p>
+                                                                        </div>
+                                                                        <div id="s_row" class="col_full">
+                                                                            <p><b>Info :</b> {{ $data->product}}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                </div>
                                                             </div>
                                                             <?php if($data->files_id) {?>
                                                             <div class="modal-body">

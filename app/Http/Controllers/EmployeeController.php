@@ -56,12 +56,12 @@ class EmployeeController extends Controller
             'agency' => 'max:100',
         ]);
 
-        $validated['created_by'] = auth()->user()->role_id;
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['created_by'] = auth()->user()->id_user;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $employee = Employee::create($validated);
 
-        Alert::success('Success', 'Employee has been saved !');
+        Alert::success('Success', 'Employee has been saved!');
         return redirect('/employee');
     }
 
@@ -98,12 +98,12 @@ class EmployeeController extends Controller
             'mobile' => 'required|max:100',
         ]);
 
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $role = Employee::findOrFail($id);
         $role->update($validated);
 
-        Alert::info('Success', 'Employee has been updated !');
+        Alert::info('Success', 'Employee has been updated!');
         return redirect('/employee');
     }
 
@@ -121,10 +121,10 @@ class EmployeeController extends Controller
 
             $deletedrole->update($validated);
 
-            Alert::error('Success', 'Employee has been deleted !');
+            Alert::error('Success', 'Employee has been deleted!');
             return redirect('/employee');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Location already used !');
+            Alert::warning('Error', 'Cant deleted, Location already used!');
             return redirect('/employee');
         }
     }

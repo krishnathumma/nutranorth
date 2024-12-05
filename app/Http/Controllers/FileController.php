@@ -63,8 +63,8 @@ class FileController extends Controller
                 $file->file_path = $filePath;
                 $file->type = 'Npn-data';
                 $file->type_id = 99665;
-                $file->created_by = auth()->user()->role_id;
-                $file->updated_by = auth()->user()->role_id;
+                $file->created_by = auth()->user()->id_user;
+                $file->updated_by = auth()->user()->id_user;
                 $file->save();
 
                 return back()

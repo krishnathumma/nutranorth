@@ -47,7 +47,7 @@
                                             <th>Location</th>
                                             <th>File</th>
                                             @if($role->role == "Administor")
-                                            <th>Action</th>
+                                            <th style="width: 19%;">Action</th>
                                             @endif
                                         </tr>
                                     </thead>

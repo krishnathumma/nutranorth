@@ -30,13 +30,14 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="text-right">
+                                    <a href="{{ route('task-export') }}" class="btn btn-success">Export to Excel</a>
                                     <a href="/task/create" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
                                         Task</a>
                                 </div>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <table id="example1" class="table table-striped table-bordered table-hover text-center"
+                                <table id="example1" class="table table-striped table-bordered table-hover text-center task-table"
                                     style="width: 100%">
                                     <thead>
                                         <tr>
@@ -46,29 +47,26 @@
                                             <th>Assigned To</th>
                                             <th>Source</th>
                                             <th>Assigned Date</th>
+                                            <th>Assigned By</th>
                                             <th>Due Date</th>
                                             <th>Status</th>
-                                            @if($role->role == "Administor")
                                             <th>Action</th>
-                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php 
-                                           // echo "<pre>";
-                                            //print_r($task);
-                                        ?>
+                                        
                                         @foreach ($task as $data)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ ucfirst($data->task_category) }}</td>
-                                                <td>{{ ucfirst($data->task_type) }}</td>
+                                                <td>{{ ucfirst(str_replace("_", " ", $data->task_type)) }}</td>
                                                 <td>{{ ucfirst($data->name) }}</td>
                                                 <td>{{ $data->source }}</td>
                                                 <td>{{ $data->assigned_date }}</td>
+                                                <td>{{ ucfirst($data->created_user) }}</td>
                                                 <td>{{ $data->due_date }}</td>
                                                 <td>{{ ucfirst($data->status) }}</td>
-                                                @if($role->role == "Administor")
+                                               
                                                 <td>
                                                     <form class="d-inline" action="/task/{{ $data->id }}/edit"
                                                         method="GET">
@@ -79,7 +77,7 @@
                                                     <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#createModal_{{$data->id}}">
                                                         <i class="fa-solid fa-eye"></i> View
                                                     </button>
-
+                                                    @if($role->role == "Administor")
                                                     <form class="d-inline" action="/task/{{ $data->id }}"
                                                         method="POST">
                                                         @csrf
@@ -88,8 +86,9 @@
                                                             id="btn-delete"><i class="fa-solid fa-trash-can"></i> Delete
                                                         </button>
                                                     </form>
+                                                    @endif
                                                 </td>
-                                                @endif
+                                               
                                                 <div class="modal fade" id="createModal_{{$data->id}}" tabindex="-1" role="dialog" aria-labelledby="createModal" >
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">

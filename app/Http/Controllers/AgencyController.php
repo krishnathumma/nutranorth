@@ -46,8 +46,8 @@ class AgencyController extends Controller
             'contact_person' => 'required|max:500',
         ]);
 
-        $validated['created_by'] = auth()->user()->role_id;
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['created_by'] = auth()->user()->id_user;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $agency = Agency::create($validated);
 
@@ -89,7 +89,7 @@ class AgencyController extends Controller
             'contact_person' => 'required|max:500',
         ]);
 
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $agency = Agency::findOrFail($id);
         $agency->update($validated);
@@ -107,15 +107,15 @@ class AgencyController extends Controller
         try {
             $deletednpn = Agency::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletednpn->update($validated);
 
-            Alert::error('Success', 'Agency has been deleted !');
+            Alert::error('Success', 'Agency has been deleted!');
             return redirect('/agency');
         } catch (Exception $ex) {
-            Alert::warning('Error', 'Cant deleted, Agency already used !');
+            Alert::warning('Error', 'Cant deleted, Agency already used!');
             return redirect('/agency');
         }
     }

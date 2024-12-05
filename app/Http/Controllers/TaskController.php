@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Mail\SendMailsToUsers;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TaskExport;
 use Mail;
-// use Illuminate\Support\Facades\Mail;
-// use App\Mail\MailSender;
 use Exception;
 
 class TaskController extends Controller
@@ -26,15 +26,42 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $task = DB::table('tasks')
-            ->leftjoin('users', 'tasks.assigned_to', '=', 'users.id_user')
-            ->leftJoin('files', function($join) {
-                $join->on('tasks.id', '=', 'files.type_id')
-                    ->where('files.type', '=', 'Task');
-            })
-            ->select('tasks.*','users.name', 'files.id as files_id')
-            ->whereRaw('tasks.deleted_at = "" OR tasks.deleted_at IS NULL')
-            ->get();
+        if(auth()->user()->role_id != 1){
+            $task = DB::table('tasks')
+                    ->leftJoin('users', 'tasks.assigned_to', '=', 'users.id_user')
+                    ->leftJoin('users as created_user', 'tasks.created_by', '=', 'created_user.id_user')
+                    ->leftJoin('files', function($join) {
+                        $join->on('tasks.id', '=', 'files.type_id')
+                            ->where('files.type', '=', 'Task');
+                    })
+                    ->select('tasks.*', 'users.name', 'created_user.name as created_user', 'files.id as files_id')
+                    ->where(function ($query) {
+                        // Ensures the task is either assigned to or created by the current user
+                        $query->where('tasks.assigned_to', auth()->user()->id_user)
+                            ->orWhere('tasks.created_by', auth()->user()->id_user);
+                    })
+                    ->where(function ($query) {
+                        // Ensures the task is not deleted (no 'deleted_at' value)
+                        $query->whereNull('tasks.deleted_at')
+                            ->orWhere('tasks.deleted_at', '');
+                    })
+                    ->get();
+        } else {
+            $task = DB::table('tasks')
+                    ->leftJoin('users', 'tasks.assigned_to', '=', 'users.id_user')
+                    ->leftJoin('users as created_user', 'tasks.created_by', '=', 'created_user.id_user')
+                    ->leftJoin('files', function($join) {
+                        $join->on('tasks.id', '=', 'files.type_id')
+                            ->where('files.type', '=', 'Task');
+                    })
+                    ->select('tasks.*', 'users.name', 'created_user.name as created_user', 'files.id as files_id')
+                    ->where(function ($query) {
+                        $query->whereNull('tasks.deleted_at')
+                            ->orWhere('tasks.deleted_at', '');
+                    })
+                    ->get();
+        }
+        
 
         $value = auth()->user();
         $role = Role::find($value->role_id);
@@ -72,8 +99,8 @@ class TaskController extends Controller
         ]);
 
         
-        $validated['created_by'] = auth()->user()->role_id;
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['created_by'] = auth()->user()->id_user;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $task = Task::create($validated);
         
@@ -91,14 +118,14 @@ class TaskController extends Controller
                     $file->file_path = $filePath;
                     $file->type = 'Task';
                     $file->type_id = $task->id;
-                    $file->created_by = auth()->user()->role_id;
-                    $file->updated_by = auth()->user()->role_id;
+                    $file->created_by = auth()->user()->id_user;
+                    $file->updated_by = auth()->user()->id_user;
                     $file->save();
                 }
             }
         }
         $this->taskmail($task->id, 'add');
-        Alert::success('Success', 'Task has been saved !');
+        Alert::success('Success', 'Task has been saved!');
         return redirect('/task');
     }
 
@@ -133,7 +160,7 @@ class TaskController extends Controller
         ]);
 
        
-        $validated['updated_by'] = auth()->user()->role_id;
+        $validated['updated_by'] = auth()->user()->id_user;
 
         $task = Task::findOrFail($id);
         if($task->update($validated)) {
@@ -152,7 +179,7 @@ class TaskController extends Controller
                         'file_path' => $filePath,
                         'type' => 'Task',
                         'type_id' => $id,
-                        'updated_by' => auth()->user()->role_id
+                        'updated_by' => auth()->user()->id_user
                     ];
 
                     $file->update($files_updated);
@@ -164,8 +191,8 @@ class TaskController extends Controller
                     $file->file_path = $filePath;
                     $file->type = 'Task';
                     $file->type_id = $task->id;
-                    $file->created_by = auth()->user()->role_id;
-                    $file->updated_by = auth()->user()->role_id;
+                    $file->created_by = auth()->user()->id_user;
+                    $file->updated_by = auth()->user()->id_user;
                     $file->save();
                 }
             }
@@ -184,7 +211,7 @@ class TaskController extends Controller
         try {
             $deletedtask = Task::findOrFail($id);
 
-            $validated['deleted_by'] = auth()->user()->role_id;
+            $validated['deleted_by'] = auth()->user()->id_user;
             $validated['deleted_at'] = date('Y-m-d H:i:s');
 
             $deletedtask->update($validated);
@@ -202,116 +229,138 @@ class TaskController extends Controller
 
         $task = DB::table('tasks')->where('id', $id)->first();
 
-                
-        $user = DB::table('users')->where('id_user', $task->assigned_to)->first();
-		$user_name = $user->name;
+        if(!empty($task)){
 
+             
+            $user = DB::table('users')->where('id_user', $task->assigned_to)->first();
+            if(!empty($user)){
+                $user_name = $user->name;
+            }
+            
+            $task_assigned = DB::table('users')->where('id_user', $task->created_by)->first();
+            if(!empty($task_assigned)) {
+                $task_assigned_name = $task_assigned->name;
+            }
+		
 
-		$task_assigned = DB::table('users')->where('id_user', $task->created_by)->first();
-		$task_assigned_name = $task_assigned->name;
+            if(strtolower($type) == 'add'){
 
-		if(strtolower($type) == 'add'){
-			$subject = 'Task ID ('.$task->id.') Added';
-			$assign_by = "Task Assigned By";
-			$tag = "Task has been Added";
-			$emailId = $user->email;
-		} else if(strtolower($type) == 'edit'){
-			$subject = 'Task ID ('.$task->id.') Updated';
-			$assign_by = "Task Assigned By";
-			$tag = "Task has been Added";
-			$emailId = $user->email;
-		} else {
-			$subject = 'Task ID ('.$task->id.') Status Changed';
-			$assign_by = "Task Updated By";
-			$tag = "Task Status Changed";
-			$emailId = $task_assigned->email;
-		}
+                $subject = 'Task ID ('.$task->id.') Added';
+                $assign_by = "Task Assigned By";
+                $tag = "Task has been Added";
+                $emailId = $user->email;
 
-		$url = "Thanks<br/>Nutra North";
-        $htmldata = '<!doctype html>
-                            <html lang="en">
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta name="viewport"
-                                    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-                                <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            } else if(strtolower($type) == 'edit'){
 
-                                <style>
-                                    p {
-                                        font-size: 12px;
-                                    }
+                $subject = 'Task ID ('.$task->id.') Updated';
+                $assign_by = "Task Assigned By";
+                $tag = "Task has been Added";
+                $emailId = $user->email;
 
-                                    .signature {
-                                        font-style: italic;
-                                    }
-                                </style>
-                            </head>';
+            } else {
 
-		if(strtolower($type) == 'add' || strtolower($type) == 'edit'){
-			$htmldata  .='<body>
-	          <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
-	            <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
-	              <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
-	                <div style="border-color:#e5e5e5;border-style:none solid solid;border-width:2px;padding:7%">
-	                  <p style="color:#333;font-size:14px;line-height:1.4;margin:0 0 20px">Hello '.$user_name.',</p>
-	                  <p style="color:#333;font-size:13px;line-height:1.4;margin:20px 0">
-	                    '.$tag.'<br />
-	                    Task ID: '.$task->id.' <br />
-	                    Task Category: '.ucfirst($task->task_category).' <br />
-	                    Task Type: '.ucfirst($task->task_type).' <br />
-	                    Task Status: '.ucfirst($task->status).' <br />
-	                    '.$assign_by.': '.$task_assigned_name.' <br />
-	                    Task Assign Date: '.date("Y/m/d H:i:s A",strtotime($task->assigned_date)).' <br />
-	                    Task Due Date: '.date("Y/m/d H:i:s A",strtotime($task->due_date)).' <br />
-	                    Description: '.$task->description.'<br/>
-	                  </p> 
-	                  '.$url.'
-	                </div>
-	              </div>
-	            </div>
-	          </div>
-	        </body>';
+                $subject = 'Task ID ('.$task->id.') Status Changed';
+                $assign_by = "Task Updated By";
+                $tag = "Task Status Changed";
+                $emailId = $task_assigned->email;
 
-		} else {
-            $updated_user = DB::table('users')->where('id', $task->updated_by)->first();
-			$htmldata  .='<body>
-	          <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
-	            <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
-	              <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
-	                <div style="border-color:#e5e5e5;border-style:none solid solid;border-width:2px;padding:7%">
-	                  <p style="color:#333;font-size:14px;line-height:1.4;margin:0 0 20px">Hello '.$task_assigned_name.',</p>
-	                  <p style="color:#333;font-size:13px;line-height:1.4;margin:20px 0">
-	                    '.$tag.'<br />
-	                    Task ID: '.$task->id.' Status Changed to '.ucfirst($task->status).' on '.date("Y/m/d H:i:s A",strtotime($task->updated_at)).' by '.ucfirst($updated_user->name).'  <br />
-	                  </p> 
-	                  '.$url.'
-	                </div>
-	              </div>
-	            </div>
-	          </div>
-	        </body>';
-		}
+            }
 
-        $htmldata .= '</html>';
-     
-        
-        $files = DB::table('files')->where(['type_id'=> $task->id,'type'=>'Task'])->first();
-        $filePath = '';
-        $mail = $user->email;
-        $name = $user->name;
+            $url = "Thanks<br/>Nutra North";
+            $htmldata = '<!doctype html>
+                                <html lang="en">
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport"
+                                        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                                    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        if($files != null || $files != '')
-        {   
-            $filePath = public_path() . '/storage/' . $files->file_path;
-        } 
+                                    <style>
+                                        p {
+                                            font-size: 12px;
+                                        }
 
-        
-        try {
-            Mail::to($mail)->send(new SendMailsToUsers($name, $subject, $htmldata, $filePath));
-        } catch (\Exception $e) {
-            \Log::error('Mail error: ' . $e->getMessage());
+                                        .signature {
+                                            font-style: italic;
+                                        }
+                                    </style>
+                                </head>';
+
+            if(strtolower($type) == 'add' || strtolower($type) == 'edit'){
+                $htmldata  .='<body>
+                    <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
+                        <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
+                            <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
+                                <div style="border-color:#e5e5e5;border-style:none solid solid;border-width:2px;padding:7%">
+                                <p style="color:#333;font-size:14px;line-height:1.4;margin:0 0 20px">Hello '.$user_name.',</p>
+                                <p style="color:#333;font-size:13px;line-height:1.4;margin:20px 0">
+                                    '.$tag.'<br />
+                                    Task ID: '.$task->id.' <br />
+                                    Task Category: '.ucfirst($task->task_category).' <br />
+                                    Task Type: '.ucfirst($task->task_type).' <br />
+                                    Task Status: '.ucfirst($task->status).' <br />
+                                    '.$assign_by.': '.$task_assigned_name.' <br />
+                                    Task Assign Date: '.date("Y/m/d H:i:s A",strtotime($task->assigned_date)).' <br />
+                                    Task Due Date: '.date("Y/m/d H:i:s A",strtotime($task->due_date)).' <br />
+                                    Description: '.$task->description.'<br/>
+                                </p> 
+                                '.$url.'
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </body>';
+
+            } else {
+
+                $updated_user = DB::table('users')->where('id', $task->updated_by)->first();
+                $htmldata  .='<body>
+                <div style="font-size:13px;line-height:1.4;margin:0;padding:0">
+                    <div style="background:#f7f7f7;font:13px; "Proxima Nova","Helvetica Neue",Arial,sans-serif;padding:2% 7%">
+                    <div style="background:#fff;border-top-color:#ffa800;border-top-style:solid;border-top-width:4px;margin:25px auto">
+                        <div style="border-color:#e5e5e5;border-style:none solid solid;border-width:2px;padding:7%">
+                        <p style="color:#333;font-size:14px;line-height:1.4;margin:0 0 20px">Hello '.$task_assigned_name.',</p>
+                        <p style="color:#333;font-size:13px;line-height:1.4;margin:20px 0">
+                            '.$tag.'<br />
+                            Task ID: '.$task->id.' Status Changed to '.ucfirst($task->status).' on '.date("Y/m/d H:i:s A",strtotime($task->updated_at)).' by '.ucfirst($updated_user->name).'  <br />
+                        </p> 
+                        '.$url.'
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </body>';
+            }
+
+            $htmldata .= '</html>';
+            
+            $files = DB::table('files')->where(['type_id'=> $task->id,'type'=>'Task'])->first();
+            $filePath = '';
+            $mail = $user->email;
+            $name = $user->name;
+
+            if($files != null || $files != '')
+            {   
+                $filePath = public_path() . '/storage/' . $files->file_path;
+            } 
+
+            if($_SERVER['REMOTE_ADDR'] != "127.0.0.1")
+            {
+                try {
+                    Mail::to($mail)->send(new SendMailsToUsers($name, $subject, $htmldata, $filePath));
+                } catch (\Exception $e) {
+                    \Log::error('Mail error: ' . $e->getMessage());
+                }
+            }
+
         }
+        
 
+    }
+
+    public function taskExport()
+    {
+        return Excel::download(new taskExport, 'task.xlsx');
     }
     
 }
